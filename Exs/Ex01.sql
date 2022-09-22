@@ -96,10 +96,44 @@ SELECT pnome, nascimento, TIMESTAMPDIFF(YEAR, nascimento,'2022-08-01') AS age FR
 SELECT pnome, TIMESTAMPDIFF(YEAR, nascimento, CURDATE()) as current_age FROM clientes 
 	WHERE TIMESTAMPDIFF(YEAR, nascimento, CURDATE()) > 50;
 
-# 10 - Show all managers that has less than 15 years and 6 months of contrato
+# 10 - Show all managers that has less than 15 years and 6 months of contract
+SELECT pnome, admissao, CONCAT(TIMESTAMPDIFF(YEAR, admissao, CURDATE()), "-",
+    TIMESTAMPDIFF(MONTH, admissao, CURDATE()) DIV 30) as contract FROM gerentes;
+    
+SELECT pnome, admissao, CONCAT(
+	TIMESTAMPDIFF(YEAR, admissao, CURDATE()), "-",
+    TIMESTAMPDIFF(MONTH, admissao, CURDATE()) DIV 30) as contract
+		FROM gerentes
+			WHERE TIMESTAMPDIFF(YEAR, admissao, CURDATE()) <= 15 AND
+             TIMESTAMPDIFF(MONTH, admissao, CURDATE()) < 183;
+             
+# 11 - Show transactions released at least 5 months and not more than 1 year              
+SELECT * FROM transacaoconta;
+SELECT numeroc, tdata, TIMESTAMPDIFF(MONTH, tdata, CURDATE()) as realeazed FROM transacaoconta
+	WHERE TIMESTAMPDIFF(MONTH, tdata, CURDATE()) >= 5 AND TIMESTAMPDIFF(MONTH, tdata, CURDATE()) < 12 ;
+	
+# -- Aggregation Functions
 
+# 1 - Show the amount of transactions that were deposited
+SELECT COUNT(abreviacao) FROM transacoes  WHERE abreviacao = "DEP";
 
-# --
+# 2 - Show the salary sum of managers that are not from Minas Gerais
+SELECT * FROM gerentes;
+SELECT SUM(salario) FROM gerentes WHERE uf != "MG";
 
+# 3 - Show the amount of transactions released in 2021 January
+SELECT * FROM transacaoconta;
+SELECT COUNT(numerot) FROM transacaoconta WHERE EXTRACT(YEAR_MONTH FROM tdata) = EXTRACT(YEAR_MONTH FROM '2021-01-01'); # -- NOT SURE THIS
+
+# 4 - Show name and the biggest birth date of clients from SÃO PAULO
+SELECT * FROM clientes;
+SELECT pnome, nascimento FROM clientes WHERE YEAR(nascimento) < 1980 AND uf = "SP"; # --
+
+# 5 - Show lower salaries of managers admitted after 2000
+SELECT * FROM gerentes;
+SELECT pnome, salario FROM gerentes WHERE YEAR(admissao) > 2000 AND AVG(salario) > salario;
+
+SELECT YEAR('2022-02-02');
+SELECT AVG(salario)FROM gerentes;
 
 /* -- FUNCTIONS -- */
