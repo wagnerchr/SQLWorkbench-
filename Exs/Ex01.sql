@@ -127,13 +127,59 @@ SELECT COUNT(numerot) FROM transacaoconta WHERE EXTRACT(YEAR_MONTH FROM tdata) =
 
 # 4 - Show name and the biggest birth date of clients from SÃO PAULO
 SELECT * FROM clientes;
-SELECT pnome, nascimento FROM clientes WHERE YEAR(nascimento) < 1980 AND uf = "SP"; # --
+SELECT pnome, nascimento FROM clientes WHERE uf = "SP" ORDER BY nascimento LIMIT 10; 
 
 # 5 - Show lower salaries of managers admitted after 2000
 SELECT * FROM gerentes;
-SELECT pnome, salario FROM gerentes WHERE YEAR(admissao) > 2000 AND AVG(salario) > salario;
+SELECT pnome, salario FROM gerentes WHERE admissao > 2000 ORDER BY salario ASC LIMIT 10;
 
-SELECT YEAR('2022-02-02');
-SELECT AVG(salario)FROM gerentes;
+/* -- JOINS -- */
 
-/* -- FUNCTIONS -- */
+# 1 - Show a list with cpf, name and account number of all clients
+SELECT * FROM clientes;
+SELECT * FROM clienteconta;
+SELECT c.cpf, c.pnome, cc.numero FROM clientes c INNER JOIN clienteconta cc ON c.cpf = cc.cpf;
+
+# 2 - Show number and date of transactions released by 391 account 
+SELECT * FROM clienteconta WHERE numero = 391;
+SELECT cc.numero, tc.tdata FROM clienteconta cc INNER JOIN transacaoconta tc WHERE cc.numero = 391 ;
+
+# 3 - Show the sum of all transactions of 391 account
+SELECT cc.numero, SUM(t.valor) FROM clienteconta cc INNER JOIN transacoes t;
+
+/* -- OUTER JOIN --*/
+
+# 1 - There is any client that does not have an account?
+SELECT c.pnome, co.numero FROM clientes c LEFT JOIN clienteconta co ON c.cpf = co.cpf WHERE co.numero IS NULL;
+	# Yes, there is
+
+# 2 - There is any agency that does not have an account
+SELECT a.nome, a.numero, ac.numeroc FROM agencias a LEFT JOIN agenciaconta ac ON a.numero = ac.numeroc WHERE ac.numeroc IS NULL;
+	# Yes, there is
+    
+# 3 - There is any account that is not linked to none client?
+SELECT co.numero, c.pnome FROM clienteconta co LEFT JOIN clientes c ON co.cpf = c.cpf WHERE c.pnome IS NULL;
+	# No, there isn't
+
+# 4 - There is any account that did not released a transaction?
+SELECT c.numero, tc.numerot FROM contas c LEFT JOIN transacaoconta tc ON c.numero = tc.numeroc WHERE tc.numerot IS NULL;
+	# Yes, there is
+    
+/* -- UNION --*/
+    
+# 1 - Show a list whit cpf, rg, and full name of all people of bank
+SELECT CONCAT(cpf, " ", rg, " ", pnome, " ", mnome, " ", unome, " I'm a client :)") as People FROM clientes 
+	UNION 
+		SELECT CONCAT(cpf, " ", rg, " ", pnome, " ", mnome, " ", unome, " I'm a manager :)") FROM gerentes;
+
+# 2 - Show a list with first name and gender of all people
+SELECT CONCAT(pnome, " ", sexo) as People FROM clientes
+	UNION 
+		SELECT CONCAT(pnome, " ", sexo) FROM gerentes;
+        
+# 3 - Show a Merry Christmas message with first name of all person and in other column his full address with street, city, UF and CEP
+SELECT * FROM clientes;
+SELECT CONCAT("Happy Christmas ", pnome, "!") as MerryChristimas, CONCAT(endereco, ", ", cidade, " ", uf, " ", cep) as address FROM clientes 
+	UNION
+		SELECT CONCAT("Happy Christmas ", pnome, "!") as MerryChristimas, CONCAT(endereco, ", ", cidade, " ", uf, " ", cep) as address FROM gerentes
+    ;
