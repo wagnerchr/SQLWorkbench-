@@ -58,4 +58,30 @@ SELECT t.numero, t.valor, Year(tc.tdata)
 
 # 4 - Save all past consults in a table called history2020
 
+/* -- Agrupments --*/
+
+# 1 -
+	SELECT uf, COUNT(pnome) FROM clientes GROUP BY uf HAVING COUNT(uf) = (
+		SELECT COUNT(uf) FROM clientes
+			GROUP BY uf ORDER BY COUNT(uf) DESC LIMIT 1);
+		
+# 2 - 
+    SELECT sexo, AVG(TIMESTAMPDIFF(YEAR, nascimento, CURDATE())) FROM clientes WHERE TIMESTAMPDIFF(YEAR, nascimento, CURDATE()) > 30 GROUP BY sexo;
+
+# 3 -
+	SELECT 	tipo, COUNT(valor) as TotalValue, AVG(valor) FROM transacoes GROUP BY tipo;
+
+# 4 - 
+	SELECT * FROM agencias;
+    SELECT * FROM agenciaconta ;
+    
+    SELECT a.numero, a.nome, COUNT(ac.numeroc) FROM agencias a INNER JOIN agenciaconta ac 
+		ON a.numero = ac.numeroa GROUP BY ac.numeroa;
+
+# 5 - 
+	SELECT a.nome, ac.numeroa, SUM(t.valor) FROM agencias a INNER JOIN agenciaconta ac ON a.numero = ac.numeroa 
+		INNER JOIN transacaoconta tc ON ac.numeroc = tc.numeroc
+		INNER JOIN transacoes t ON tc.numerot = t.numero 
+			WHERE t.tipo = 1
+				GROUP BY ac.numeroa HAVING SUM(t.valor) > 1300000;
 		
